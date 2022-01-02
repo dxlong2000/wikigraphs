@@ -53,11 +53,12 @@ FLAGS = flags.FLAGS
 
 VOCAB_FILES_MAP = {
     'wikitext': '/tmp/data/wikitext-vocab.csv',
-    'freebase2wikitext': '/tmp/data/text-vocab.csv',
+    # 'freebase2wikitext': '/tmp/data/text-vocab.csv',
+    'freebase2wikitext': '/tmp/data/test/text-vocab.csv'
 }
 
-GRAPH_VOCAB_FILE = '/tmp/data/graph-vocab.csv'
-
+# GRAPH_VOCAB_FILE = '/tmp/data/graph-vocab.csv'
+GRAPH_VOCAB_FILE = '/tmp/data/test/graph-vocab.csv'
 
 def init_tokenizer(dataset_name):
   """Initialie the tokenizer."""

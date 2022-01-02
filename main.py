@@ -146,10 +146,12 @@ def _train(updater, train_dataset, num_devices):
   # Initialize parameters.
   logging.info('Initializing parameters...')
   rng = jax.random.PRNGKey(FLAGS.random_seed)
-  print("9")
+
+  # print("LLLLLL")
   state = updater.init(
       rng, _preprocess(train_dataset.return_faux_batch(), num_devices))
-  print("10")
+  # print("LLLLLL")
+
   logging.info('Starting train loop...')
   prev_time = time.time()
   while True:
@@ -339,12 +341,9 @@ def main(_):
         shuffle_data=True,
         repeat=True,
         debug=FLAGS.debug)
-    print("1")
     train_iter = iter(train_dataset)
-    print("2")
     loss_fn = utils.build_loss_fn(vocab_size=tokenizer.vocab_size,
                                   cache_steps=FLAGS.train_memory_size)
-    print("3")
     optimizer = optax.chain(
         optax.clip_by_global_norm(FLAGS.grad_clip),
         optax.scale_by_adam(),
@@ -355,17 +354,13 @@ def main(_):
             min_lr_ratio=FLAGS.min_lr_ratio,
             max_steps=FLAGS.max_steps)),
         optax.scale(-1))
-    print("4")
     optimizer = optax.apply_if_finite(optimizer, max_consecutive_errors=5)
-    print("5")
     updater = Updater(loss_fn, optimizer,
                       devices=local_devices[:num_gpus],
                       has_graph=has_graph)
-    print("6")
     updater = CheckpointingUpdater(updater, FLAGS.checkpoint_dir)
-    print("7")
     _train(updater, train_iter, num_gpus)
-    print("8")
+  
   elif FLAGS.job_mode == 'eval':
     eval_dataset = dataset_class(
         tokenizer=tokenizer,

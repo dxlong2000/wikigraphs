@@ -437,6 +437,11 @@ class Graph2TextTransformer(hk.Module):
       output: loss and a dict containing metrics.
     """
     extra, extra_mask = self._encode_graphs(graphs, pad_n_nodes, batch_padded)
+   
+    print("LLLLLLLLL")
+    print(labels)
+    print("LLLLLLLLL")
+
     return self._transformer.loss(
         inputs, labels, mask, extra=extra, extra_mask=extra_mask, **kwargs)
 

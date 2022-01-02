@@ -208,21 +208,49 @@ class GraphTokenizer:
   @classmethod
   def split_node(cls, txt: str) -> List[str]:
     """Split a node string into a sequence of tokens."""
-    if txt[0] == '"' and txt[-1] == '"':  # Node is a string literal.
-      tokens = nltk.wordpunct_tokenize(io_tools.normalize_freebase_string(
-          txt[1:-1].lower()))
-      for i, t in enumerate(tokens):
-        if t.isnumeric():
-          tokens[i] = '<number>'
-      return tokens
-    else:  # If node is not a string literal it is always an entity.
-      return ['<entity>']
+    txt = txt.split(" ")
+    txt = [i for i in txt if i != ""]
+    ans = []
+    for idx in range(len(txt)):
+      if txt[idx] == "ns/001":
+        txt[idx] = "<entity>"
+    tokenss = []
+    for i in txt:
+      tokens = []
+      if i[0] != "<":
+        tokens = nltk.wordpunct_tokenize(i.lower())
+        for i, t in enumerate(tokens):
+          if t.isnumeric():
+            tokens[i] = '<number>'
+      else:
+        ans.append(i)
+      tokenss.append(tokens)
+    
+    for tokens in tokenss:
+      ans.extend(tokens)
+    # print(ans)
+    return ans
+    # if txt[0] == '"' and txt[-1] == '"':  # Node is a string literal.
+    #   tokens = nltk.wordpunct_tokenize(io_tools.normalize_freebase_string(
+    #       txt[1:-1].lower()))
+    #   for i, t in enumerate(tokens):
+    #     if t.isnumeric():
+    #       tokens[i] = '<number>'
+    #   return tokens
+    # else:  # If node is not a string literal it is always an entity.
+    #   return ['<entity>']
 
   @classmethod
   def split_edge(cls, txt: str) -> List[str]:
-    """Split an edge string into a sequence of tokens."""
-    return re.split('[._ ]+', txt.lower().split('/')[1])
+    # print("TTTTTTTTTTT")
+    # print([i for i in txt.split(" ") if i!=""])
+    # print(re.split('[._ ]+', txt.lower().split('/')[1]))
+    # print("TTTTTTTTTTT")
 
+    """Split an edge string into a sequence of tokens."""
+    # return re.split('[._ ]+', txt.lower().split('/')[1])
+    return [i for i in txt.split(" ") if i!=""]
+  
   def pad_token(self):
     return self._pad_token
 

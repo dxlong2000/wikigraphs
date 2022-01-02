@@ -124,7 +124,6 @@ class Updater:
            replicated_params=False):
     """Initializes state of the updater."""
     logging.info("INIT IN UPDATER")
-    print("11")
     data = self._preprocess(data)
     rngs = np.array([master_rng] * self._num_devices)
     if not replicated_params and params is not None:

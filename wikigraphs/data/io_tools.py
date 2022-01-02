@@ -126,6 +126,7 @@ class GraphTextPair(NamedTuple):
   title: str
   edges: List[str]
   text: str
+  answer: str
 
 
 def pair2lines(pair):
@@ -157,10 +158,14 @@ def read_pairs_from_gzip_txt_file(file_path: str) -> Iterator[GraphTextPair]:
   """
   content = read_gzip_txt_file(file_path)
 
+  # graph_header_sep_re = re.compile(
+  #     r'(<graph center=[^ ]+ title="[^"]+">)')
   graph_header_sep_re = re.compile(
-      r'(<graph center=[^ ]+ title="[^"]+">)')
+      r'(<graph center=[^ ]+ title="[^"]+>")')
+  # graph_header_re = re.compile(
+  #     r'<graph center=([^ ]+) title="([^"]+)">$')
   graph_header_re = re.compile(
-      r'<graph center=([^ ]+) title="([^"]+)">$')
+      r'<graph center=([^ ]+) title="([^"]+)>"$')
   section_sep_re = re.compile(r'\n(<section id="[^"]+">\n)')
   parts = graph_header_sep_re.split(content)
 
@@ -172,8 +177,15 @@ def read_pairs_from_gzip_txt_file(file_path: str) -> Iterator[GraphTextPair]:
     # 5 parts total, empty first part, "text", text section, "edges", edges
     # section.
     section_parts = section_sep_re.split(body)
-
+    # print("LLLL")
+    # print("center_node = ", m.group(1))
+    # print("title = ", m.group(2)+">")
+    # print("text = ", section_parts[2])
+    # print("answer = ", section_parts[4])
+    # print(section_parts[-1].strip().split('\n'))
+    # print("LLLL")
     yield GraphTextPair(center_node=m.group(1),
-                        title=m.group(2),
+                        title=m.group(2)+">",
                         text=section_parts[2],
-                        edges=section_parts[-1].strip().split('\n'))
+                        edges=section_parts[-1].strip().split('\n'),
+                        answer=section_parts[4])

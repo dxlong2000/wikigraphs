@@ -45,8 +45,8 @@ from wikigraphs.data import tools
 
 
 ArrayType = Union[np.ndarray, jnp.ndarray]
-DATA_ROOT = '/tmp/data/wikigraphs'
-
+# DATA_ROOT = '/tmp/data/wikigraphs'
+DATA_ROOT = '/content/drive/MyDrive/knowledge-graph/PlotQA/val'
 
 class RawDataset(dataset.Dataset):
   """The untokenized raw dataset."""
@@ -83,8 +83,9 @@ class RawDataset(dataset.Dataset):
   def _load_data(self):
     """Load and prepare the data iterator."""
     if self._dataset is None:
-      self._dataset = list(io_tools.read_pairs_from_gzip_txt_file(
-          f'{self._data_dir}/{self._version}/{self._subset}.gz'))
+      # self._dataset = list(io_tools.read_pairs_from_gzip_txt_file(
+      #     f'{self._data_dir}/{self._version}/{self._subset}.gz'))
+      self._dataset = list(io_tools.read_pairs_from_gzip_txt_file(f'{self._data_dir}/{self._subset}-graph.gz'))
 
     def source():
       n_pairs = len(self._dataset)
@@ -130,7 +131,15 @@ class Graph:
     next_node_id = 0
 
     for e in edges:
-      src, edge, tgt = e.split('\t')[:3]
+      # src, edge, tgt = e.split('\t')[:3]
+      if len(e.split('|||')) == 3:
+        src, edge, tgt = e.split('|||')
+        src = src.strip()
+        edge = edge.strip()
+        tgt = tgt.strip()
+        # print(src, edge, tgt)
+      else:
+        continue
       src_id = node2id.get(src, next_node_id)
       if src_id == next_node_id:
         node2id[src] = src_id
@@ -140,7 +149,7 @@ class Graph:
         node2id[tgt] = tgt_id
         next_node_id += 1
       parsed_edges.append((src_id, tgt_id, edge))
-
+    
     id2node = {i: n for n, i in node2id.items()}
     return Graph(nodes=[id2node[i] for i in range(next_node_id)],
                  edges=parsed_edges)
@@ -204,6 +213,7 @@ class ParsedGraphTextPair(NamedTuple):
   title: str
   text: str
   graph: Graph
+  answer: str
 
 
 class ParsedDataset(dataset.Dataset):
@@ -237,7 +247,8 @@ class ParsedDataset(dataset.Dataset):
       self._dataset = [ParsedGraphTextPair(center_node=pair.center_node,
                                            title=pair.title,
                                            text=pair.text,
-                                           graph=Graph.from_edges(pair.edges))
+                                           graph=Graph.from_edges(pair.edges),
+                                           answer=pair.answer)
                        for pair in self._raw_data]
 
     def source():
@@ -630,6 +641,11 @@ class Graph2TextDataset(BaseGraph2TextDataset):
     """Convert the input to a `jraph.GraphsTuple` instance."""
     n_nodes = len(nodes_bow)
     n_edges = len(edges_bow)
+
+    print("TEST GRAPH INPUT")
+    print(n_nodes)
+    print(n_edges)
+    print("TEST GRAPH INPUT")
 
     # +1 for the center node indicator
     nodes = np.zeros((n_nodes, self._graph_feature_dim + 1), dtype=np.float32)
