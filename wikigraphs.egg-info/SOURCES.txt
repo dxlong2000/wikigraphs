@@ -1,0 +1,6 @@
+README.md
+setup.py
+wikigraphs.egg-info/PKG-INFO
+wikigraphs.egg-info/SOURCES.txt
+wikigraphs.egg-info/dependency_links.txt
+wikigraphs.egg-info/top_level.txt
